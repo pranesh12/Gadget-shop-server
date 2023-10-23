@@ -4,14 +4,16 @@ const {
   fetchAllProducts,
   fetchProductById,
   updateProduct,
+  deleteProduct,
 } = require("../controllers/productController");
 
 const router = express.Router();
 
 router
-  .get("/products", fetchAllProducts)
-  .post("/products", createProduct)
-  .get("products/:id", fetchProductById)
-  .put("/products/:id", updateProduct);
+  .get("/", fetchAllProducts)
+  .post("/", createProduct)
+  .get("/:id", fetchProductById)
+  .patch("/:id", updateProduct)
+  .delete("/:id", deleteProduct);
 
 module.exports = router;
