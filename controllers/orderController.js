@@ -1,70 +1,76 @@
-const { Order } = require("../models/orderModel");
+require("dotenv").config();
+const stripe = require("stripe")(
+  "sk_test_51LFFU0IzfmS7pHpEZBQH5CRKrMCran9goN7ssdUenCChbNL51KN0MXrpD0IU6P3zLLnZdeq7d0itywEyyT8awtff00042YP5El"
+);
+const { v4: uuidv4 } = require("uuid");
+const Order = require("../models/orderModel");
+const userModel = require("../models/userModel");
 
-exports.fetchOrdersByUser = async (req, res) => {
-  try {
-    const orders = await Order.find({ user: id });
-
-    res.status(200).json(orders);
-  } catch (err) {
-    res.status(400).json(err);
-  }
-};
-
-exports.createOrder = async (req, res) => {
-  const order = new Order(req.body);
-  // here we have to update stocks;
-
-  for (let item of order.items) {
-    let product = await Product.findOne({ _id: item.product.id });
-    product.$inc("stock", -1 * item.quantity);
-    // for optimum performance we should make inventory outside of product.
-    await product.save();
-  }
+export const payment = async (req, res) => {
+  const { totalAmount, token, currentUser, cartItems } = req.body;
+  const idempotencyKey = uuidv4();
 
   try {
-    const doc = await order.save();
-    const user = await User.findById(order.user);
-    // we can use await for this also
-    sendMail({
-      to: user.email,
-      html: invoiceTemplate(order),
-      subject: "Order Received",
+    const customer = await stripe.customers.create({
+      email: token.email,
+      source: token.id,
     });
 
-    res.status(201).json(doc);
-  } catch (err) {
-    res.status(400).json(err);
+    const charge = await stripe.charges.create(
+      {
+        amount: totalAmount * 100,
+        currency: "usd",
+        receipt_email: token.email,
+        customer: customer.id,
+      },
+      { idempotencyKey }
+    );
+
+    if (charge) {
+      Order.create({
+        name: currentUser.name,
+        email: token.email,
+        orderAmount: totalAmount,
+        orders: cartItems,
+        userId: currentUser._id,
+        shippingAddress: {
+          city: token.card.address_country,
+          streetAddress: token.card.address_line1,
+        },
+      });
+      console.log("succefull");
+      res.send({ message: "Payment successfull" });
+    } else {
+      console.log("unsuceefull");
+      res.send({ message: "Payment Failed" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.send({ message: "Payment Failed" });
   }
 };
 
-exports.deleteOrder = async (req, res) => {
-  const { id } = req.params;
+export const allOrder = async (req, res) => {
+  const { email } = req.query;
   try {
-    const order = await Order.findByIdAndDelete(id);
-    res.status(200).json(order);
-  } catch (err) {
-    res.status(400).json(err);
+    const admin = await userModel.find({ email: email });
+    if ((admin.isAdmin = true)) {
+      const orderList = await Order.find({});
+      res.status(200).json(orderList);
+    } else {
+      res.status(400).json("Something wrong");
+    }
+  } catch (error) {
+    res.status(400).json(error);
   }
 };
 
-exports.updateOrder = async (req, res) => {
-  const { id } = req.params;
+export const userOrder = async (req, res) => {
+  const { email } = req.query;
   try {
-    const order = await Order.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
-    res.status(200).json(order);
-  } catch (err) {
-    res.status(400).json(err);
-  }
-};
-
-exports.fetchAllOrders = async (req, res) => {
-  try {
-    const docs = await query.exec();
-    res.set("X-Total-Count", totalDocs);
-    res.status(200).json(docs);
-  } catch (err) {
-    res.status(400).json(err);
+    const userOrderList = await Order.find({ email: email });
+    res.status(200).json(userOrderList);
+  } catch (error) {
+    res.status(400).json(error);
   }
 };
