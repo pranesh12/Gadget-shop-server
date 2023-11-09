@@ -1,12 +1,12 @@
-require("dotenv").config();
+// require("dotenv").config();
 const stripe = require("stripe")(
   "sk_test_51LFFU0IzfmS7pHpEZBQH5CRKrMCran9goN7ssdUenCChbNL51KN0MXrpD0IU6P3zLLnZdeq7d0itywEyyT8awtff00042YP5El"
 );
 const { v4: uuidv4 } = require("uuid");
+const User = require("../models/userModel");
 const Order = require("../models/orderModel");
-const userModel = require("../models/userModel");
 
-export const payment = async (req, res) => {
+exports.payment = async (req, res) => {
   const { totalAmount, token, currentUser, cartItems } = req.body;
   const idempotencyKey = uuidv4();
 
@@ -50,22 +50,22 @@ export const payment = async (req, res) => {
   }
 };
 
-export const allOrder = async (req, res) => {
+exports.allOrder = async (req, res) => {
   const { email } = req.query;
   try {
-    const admin = await userModel.find({ email: email });
+    const admin = await User.find({ email: email });
     if ((admin.isAdmin = true)) {
       const orderList = await Order.find({});
       res.status(200).json(orderList);
     } else {
-      res.status(400).json("Something wrong");
+      res.status(400).json({ message: "something went wrong" });
     }
   } catch (error) {
     res.status(400).json(error);
   }
 };
 
-export const userOrder = async (req, res) => {
+exports.userOrder = async (req, res) => {
   const { email } = req.query;
   try {
     const userOrderList = await Order.find({ email: email });
