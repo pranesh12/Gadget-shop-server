@@ -75,15 +75,25 @@ exports.register = async (req, res) => {
 exports.allUsers = async (req, res) => {
   const { email } = req.query;
   try {
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ email: email, isAdmin: true });
     if ((user.isAdmin = true)) {
-      const userList = await User.find({});
-      console.log(userList);
+      const userList = await User.find({}).select("-password");
       res.status(200).json(userList);
     } else {
       res.status(400).json({ meassage: "Not found" });
     }
   } catch (err) {
     res.json({ message: "something went wrong" });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  const { email } = req.query;
+  try {
+    const user = await User.findOne({ email: email, isAdmin: true });
+    if ((user.isAdmin = true)) {
+    }
+  } catch (err) {
+    res.json({ message: "unsuccessful" });
   }
 };

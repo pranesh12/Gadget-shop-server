@@ -38,14 +38,13 @@ exports.payment = async (req, res) => {
           streetAddress: token.card.address_line1,
         },
       });
-      console.log("succefull");
+
       res.send({ message: "Payment successfull" });
     } else {
       console.log("unsuceefull");
       res.send({ message: "Payment Failed" });
     }
   } catch (error) {
-    console.log(error);
     res.send({ message: "Payment Failed" });
   }
 };

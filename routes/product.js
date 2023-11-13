@@ -11,7 +11,7 @@ const router = express.Router();
 
 router
   .get("/", fetchAllProducts)
-  .post("/", createProduct)
+  .post("/createproduct", createProduct)
   .get("/:id", fetchProductById)
   .patch("/:id", updateProduct)
   .delete("/:id", deleteProduct);

@@ -11,7 +11,6 @@ exports.fetchAllProducts = async (req, res) => {
 
 exports.fetchProductById = async (req, res) => {
   const { id } = req.params;
-
   try {
     const product = await Product.findById({ _id: id });
     res.status(200).json(product);
@@ -22,37 +21,25 @@ exports.fetchProductById = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
   try {
-    const {
-      title,
-      description,
-      price,
-      discountPercentage,
-      rating,
-      stock,
-      brand,
-      category,
-      thumbnail,
-      images,
-      discountPrice,
-    } = req.body;
+    const { title, description, price, rating, brand, category, thumbnail } =
+      req.body;
 
-    await product.create({
-      title,
+    console.log(req.body);
+    console.log("mintuli is calling");
+
+    await Product.create({
       title,
       description,
       price,
-      discountPercentage,
       rating,
-      stock,
       brand,
       category,
       thumbnail,
-      images,
-      discountPrice,
     });
 
     res.status(201).json({ message: "Created Successfully" });
   } catch (err) {
+    console.log(err);
     res.status(400).json(err);
   }
 };
@@ -73,7 +60,9 @@ exports.updateProduct = async (req, res) => {
 exports.deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(id);
     await Product.findOneAndDelete({ _id: id });
+    console.log("working");
     res.json({ message: "Product has been deleted" });
   } catch (error) {
     res.json(error);
