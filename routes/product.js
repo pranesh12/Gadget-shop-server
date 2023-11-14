@@ -13,7 +13,7 @@ router
   .get("/", fetchAllProducts)
   .post("/createproduct", createProduct)
   .get("/:id", fetchProductById)
-  .patch("/:id", updateProduct)
+  .put("/:id", updateProduct)
   .delete("/:id", deleteProduct);
 
 module.exports = router;

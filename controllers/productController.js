@@ -24,9 +24,6 @@ exports.createProduct = async (req, res) => {
     const { title, description, price, rating, brand, category, thumbnail } =
       req.body;
 
-    console.log(req.body);
-    console.log("mintuli is calling");
-
     await Product.create({
       title,
       description,
@@ -60,9 +57,7 @@ exports.updateProduct = async (req, res) => {
 exports.deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(id);
     await Product.findOneAndDelete({ _id: id });
-    console.log("working");
     res.json({ message: "Product has been deleted" });
   } catch (error) {
     res.json(error);
