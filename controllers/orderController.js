@@ -1,7 +1,5 @@
-// require("dotenv").config();
-const stripe = require("stripe")(
-  "sk_test_51LFFU0IzfmS7pHpEZBQH5CRKrMCran9goN7ssdUenCChbNL51KN0MXrpD0IU6P3zLLnZdeq7d0itywEyyT8awtff00042YP5El"
-);
+require("dotenv").config();
+const stripe = require("stripe")(process.env.stripe_key);
 const { v4: uuidv4 } = require("uuid");
 const User = require("../models/userModel");
 const Order = require("../models/orderModel");
@@ -41,7 +39,6 @@ exports.payment = async (req, res) => {
 
       res.send({ message: "Payment successfull" });
     } else {
-      console.log("unsuceefull");
       res.send({ message: "Payment Failed" });
     }
   } catch (error) {
